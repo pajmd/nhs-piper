@@ -40,5 +40,5 @@ VALIDATION_SCHEMA =  {
 }
 
 # SOLR
-SOLR_CLIENT = os.environ.get('SOLR_CLIENT', 'localhost')
+SOLR_HOST = os.environ.get('SOLR_HOST', 'localhost')
 SOLR_PORT = os.environ.get('SOLR_PORT', 8983)

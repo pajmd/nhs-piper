@@ -1,7 +1,7 @@
-from app.settings import SOLR_CLIENT, SOLR_PORT, COLLECTION_NAME
+from app.settings import SOLR_HOST, SOLR_PORT, COLLECTION_NAME
 from app.search_engine.solrclient.solrclient import SolrClient
 
 
 def send(records):
-    client = SolrClient(host=SOLR_CLIENT, port=SOLR_PORT)
+    client = SolrClient(host=SOLR_HOST, port=SOLR_PORT)
     client.add_documents(COLLECTION_NAME, records)
