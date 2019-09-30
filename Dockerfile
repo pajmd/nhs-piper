@@ -14,7 +14,7 @@ WORKDIR /app
 # Copy the current directory contents into the container at /app
 COPY . /app
 
-# RUN echo $(ls -1R .)
+make buildRUN echo $(ls -1R .)
 # RUN apt-get install -y vim
 
 ENV SOLR_HOST='solr1'
