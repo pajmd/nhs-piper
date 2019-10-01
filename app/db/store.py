@@ -1,5 +1,8 @@
 import pymongo
+import logging
 
+
+logger = logging.getLogger(__name__)
 
 class DbClient(object):
 
@@ -46,7 +49,9 @@ class DbClient(object):
         self.client.close()
 
     def insert_documents(self, documents):
+        logger.debug("Potentially inserting %d documents" % len(documents))
         operations = self.build_bulk_upsert(documents)
+        logger.debug("Writting %d db operations" % len(operations))
         rc = self.db[self.collection_name].bulk_write(operations)
 
     def build_bulk_upsert(self, documents):

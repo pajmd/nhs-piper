@@ -1,6 +1,6 @@
-from app.search_engine.solrclient.httpclient import HttpClient
-from app.search_engine.solrclient.solrclientexceptions import raise_for_status
-from app.search_engine.solrclient.solrcommands import SolrOp as op
+from search_engine.solrclient.httpclient import HttpClient
+from search_engine.solrclient.solrclientexceptions import raise_for_status
+from search_engine.solrclient.solrcommands import SolrOp as op
 
 
 # https://lucene.apache.org/solr/guide/7_3/collections-api.html

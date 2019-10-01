@@ -1,6 +1,6 @@
-from app.pipers.piper import Piper
-from app.settings import COLLECTION_NAME
-from app.search_engine import solr
+from pipers.piper import Piper
+from settings import COLLECTION_NAME
+from search_engine import solr
 import uuid
 import time
 import logging

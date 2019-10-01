@@ -1,8 +1,8 @@
 from abc import abstractmethod, ABCMeta
 from kafka import KafkaConsumer
 from json import loads
-from app.settings import (
-    TOPIC, KAFKA_BROKERS,
+from settings import (
+    TOPIC, KAFKA_BROKERS
 )
 import threading
 import time
@@ -22,6 +22,7 @@ class Piper(object):
         threading.Thread.__init__(self)
         self.stop_event = threading.Event()
 
+        logger.info("Kafka Brokers: %s" % KAFKA_BROKERS)
         self.max_poll_time = max_poll_time
         self.max_records = max_records
         self.consumer = KafkaConsumer(
@@ -40,16 +41,20 @@ class Piper(object):
         self.stop_event.set()
 
     def consume_pipe(self):
+        logger.debug('Entering the consumer loop')
         while not self.stop_event.is_set():
+            logger.debug('In the consumer loop')
             try:
                 nhs_records = []
                 records = self.consumer.poll(self.max_poll_time, self.max_records)
+                logger.debug("Received some records")
                 if records:
+                    logger.debug("Received %d records" % len(records))
                     for topic_partition, consumer_records in records.items():
                         logger.debug('topic: %s, partition=%d' % (topic_partition.topic, topic_partition.partition))
                         logger.debug(consumer_records)
                         for record in consumer_records:
-                            logger.debug(record.offset)
+                            logger.debug("Record offset: %d" % record.offset)
                             nhs_records.append(record.value['doc'])
                     try:
                         self.process_records(nhs_records)
@@ -57,6 +62,7 @@ class Piper(object):
                     except Exception as ex:  # create exception DB and solr specific
                         logger.debug('Error while indexing data: %s' % ex)
                 else:
+                    logger.debug("Nothing record received")
                     time.sleep(2)
 
             except Exception as ex:  # create exception DB and solr specific

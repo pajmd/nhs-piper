@@ -1,5 +1,5 @@
-from app.settings import SOLR_HOST, SOLR_PORT, COLLECTION_NAME
-from app.search_engine.solrclient.solrclient import SolrClient
+from settings import SOLR_HOST, SOLR_PORT, COLLECTION_NAME
+from search_engine.solrclient.solrclient import SolrClient
 
 
 def send(records):

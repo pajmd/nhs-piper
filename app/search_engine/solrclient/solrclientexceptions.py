@@ -1,4 +1,4 @@
-from app.search_engine.solrclient.solrcommands import SolrOp as op
+from search_engine.solrclient.solrcommands import SolrOp as op
 
 
 class CreateCollectionException(Exception):

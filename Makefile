@@ -3,7 +3,7 @@
 #
 # make
 #
-NAME   := pjmd-ubuntu:5001/nhs-piper
+NAME   := pjmd-ubuntu:5001/nhs_piper
 TAG    := $$(git describe --tag)
 IMG    := ${NAME}:${TAG}
 LATEST := ${NAME}:latest

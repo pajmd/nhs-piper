@@ -1,10 +1,10 @@
-from app.pipers.solr_piper import SolrPiper
-from app.settings import SOLR_GROUP_ID
-from app.utils import log
+from pipers.solr_piper import SolrPiper
+from settings import SOLR_GROUP_ID
+from utils import log
 import logging
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('nsh_app')
 
 
 def main():
