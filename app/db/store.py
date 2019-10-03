@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 class DbClient(object):
 
     def __enter__(self):
+        logger.debug("Entering context")
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -17,6 +18,7 @@ class DbClient(object):
             raise
 
     def __init__(self, mongo_uri, mongo_db, collection_name, validate_schema=None, validation_schema=None):
+        logger.debug("Init the DB:")
         self.mongo_uri = mongo_uri
         self.mongo_db = mongo_db
         self.validate_schema = validate_schema
@@ -29,11 +31,13 @@ class DbClient(object):
         #    client = MongoClient('%s:%d' % (MONGO_HOST, MONGO_PORT))
         #    collection = client.nhsdb.nhsCollection
 
+        logger.debug("Logging to DB: %s " % self.mongo_uri)
         self.client = pymongo.MongoClient(self.mongo_uri)
+        logger.debug("Connected to DB")
         self.db = self.client[self.mongo_db]
         if self.validate_schema:
             self.apply_validation()
-        self.create_index("digest")
+        # self.create_index("digest")
 
     def apply_validation(self):
         if self.collection_name in self.db.collection_names():
@@ -75,6 +79,7 @@ class DbClient(object):
     def mark_duplicate_document(self, document):
         digest = document['digest']
         docs = self.db[self.collection_name].find({"digest": digest})
+        logger.debug("Found %d duplicates for %s" % (docs.count(), document))
         if docs.count():
             for doc in docs:
                 if document['filename'] == 'full/2f307d3971227f3eaafcf9a6d5b7ca5b923be172.xlsx':

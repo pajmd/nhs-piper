@@ -60,9 +60,9 @@ class Piper(object):
                         self.process_records(nhs_records)
                         self.consumer.commit()
                     except Exception as ex:  # create exception DB and solr specific
-                        logger.debug('Error while indexing data: %s' % ex)
+                        logger.exception('Error while indexing data: %s' % ex)
                 else:
-                    logger.debug("Nothing record received")
+                    logger.debug("No record received")
                     time.sleep(2)
 
             except Exception as ex:  # create exception DB and solr specific

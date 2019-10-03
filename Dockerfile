@@ -5,16 +5,23 @@
 # This image  is used for both mongo and solr piper
 # when running the container pass either mongo or solr as a CMD argument
 #
-# To test:
+# To test the container in isolation ie container is running
+# and connecting to KAFKA and  Mongo running on the loca host:
 # As of Docker 18.09.3 the issue needs to be fixed.
 # For a workaround:
 # See https://github.com/qoomon/docker-host to make the container talk to the container host
 # docker run -it --rm --link 'dockerhost' -e KAFKA_HOST='dockerhost' -e MONGO_HOST='dockerhost' -t pjmd-ubuntu:5001/nhs_piper:v0.0.1
 #
-# I will still be impossible to connect to kafka on the main host, so to do so see:
+# For kafka to be reachable
+# -------------------------
+# It will still be impossible to connect to kafka on the main host, so to do so see:
 # https://rmoff.net/2018/08/02/kafka-listeners-explained/
-# basically advertise the host IP in kafak server.properties:
-# advertised.listeners=PLAINTEXT://192.168.1.3:9092
+# basically advertise the host (now dockerhost) IP in kafak server.properties:
+# advertised.listeners=PLAINTEXT://172.17.0.1:9092
+#
+# For Mongo to be reachable:
+#---------------------------
+# change /etc/mongod.conf so mongo listens to 0.0.0.0 instead of 127.0.0.1
 #
 
 FROM bionic-mongo-python
