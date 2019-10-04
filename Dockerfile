@@ -5,11 +5,25 @@
 # This image  is used for both mongo and solr piper
 # when running the container pass either mongo or solr as a CMD argument
 #
-# To test the container in isolation ie container is running
-# and connecting to KAFKA and  Mongo running on the loca host:
-# As of Docker 18.09.3 the issue needs to be fixed.
-# For a workaround:
-# See https://github.com/qoomon/docker-host to make the container talk to the container host
+# To test the container in isolation
+# ===================================
+# Objective: container is running and connecting to KAFKA and  Mongo running on the local host.
+#
+# 1) start zookeeper:
+#    /home/pjmd/apache-zookeeper-3.5.5-bin/bin/zoo-ensemble.sh start
+# 2) start Kafka:
+#    ~/kafka_2.12-2.3.0/bin/kafka-server-start.sh ~/kafka_2.12-2.3.0/config/server.properties
+# 3) start mongo:
+#    sudo service mongod start
+# 4) stat dockerhost (container gateway):
+#    As of Docker 18.09.3 the issue needs to be fixed.
+#    For a workaround:
+#    See https://github.com/qoomon/docker-host to make the container talk to the container host
+#    tl;dr: run dockerhost that acts as a gateway to the host
+#
+#    docker run --name 'dockerhost' --cap-add=NET_ADMIN --cap-add=NET_RAW --restart on-failure -d qoomon/docker-host
+#
+# 5) start nhs-piper:
 # docker run -it --rm --link 'dockerhost' -e KAFKA_HOST='dockerhost' -e MONGO_HOST='dockerhost' -t pjmd-ubuntu:5001/nhs_piper:v0.0.1
 #
 # For kafka to be reachable
