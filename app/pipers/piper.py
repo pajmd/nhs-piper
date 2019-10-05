@@ -1,9 +1,10 @@
 from abc import abstractmethod, ABCMeta
-from kafka import KafkaConsumer
+from kafka import KafkaConsumer, errors
 from json import loads
 from settings import (
     TOPIC, KAFKA_BROKERS
 )
+from pipers.errors import PiperNoBrokerAvailable
 import threading
 import time
 import logging
@@ -25,16 +26,27 @@ class Piper(object):
         logger.info("Kafka Brokers: %s" % KAFKA_BROKERS)
         self.max_poll_time = max_poll_time
         self.max_records = max_records
-        self.consumer = KafkaConsumer(
-            TOPIC,
-            bootstrap_servers=KAFKA_BROKERS,
-            auto_offset_reset='earliest',
-            enable_auto_commit=False,
-            max_poll_records=self.max_records,
-            max_poll_interval_ms=5000,  # ms
-            # consumer_timeout_ms=10,  # ms
-            group_id=group_id,
-            value_deserializer=lambda x: loads(x.decode('utf-8')))
+        connected_to_broker = False
+        for attempts in range(6):
+            try:
+                self.consumer = KafkaConsumer(
+                    TOPIC,
+                    bootstrap_servers=KAFKA_BROKERS,
+                    auto_offset_reset='earliest',
+                    enable_auto_commit=False,
+                    max_poll_records=self.max_records,
+                    max_poll_interval_ms=5000,  # ms
+                    # consumer_timeout_ms=10,  # ms
+                    group_id=group_id,
+                    value_deserializer=lambda x: loads(x.decode('utf-8')))
+                logger.debug("Connected to Kafka")
+                connected_to_broker = True
+                break
+            except errors.NoBrokersAvailable as ex:
+                logger.exception(" Attempt %d - Failed finding a broker, wait 5 sec" % attempts)
+                time.sleep(5)
+        if not connected_to_broker:
+            raise PiperNoBrokerAvailable("Failed connecting to Kafka")
 
     def stop(self):
         # it should be called when catching a signal
@@ -47,7 +59,7 @@ class Piper(object):
             try:
                 nhs_records = []
                 records = self.consumer.poll(self.max_poll_time, self.max_records)
-                logger.debug("Received some records")
+                logger.debug("Returned from polling")
                 if records:
                     logger.debug("Received %d records" % len(records))
                     for topic_partition, consumer_records in records.items():
@@ -66,7 +78,7 @@ class Piper(object):
                     time.sleep(2)
 
             except Exception as ex:  # create exception DB and solr specific
-                logger.debug('Error while polling: %s' % ex)
+                logger.exception('Error while polling: %s' % ex)
                 logger.debug('Closed consumer')
                 time.sleep(5)
 

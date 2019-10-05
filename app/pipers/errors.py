@@ -1,0 +1,2 @@
+class PiperNoBrokerAvailable(Exception):
+    pass
