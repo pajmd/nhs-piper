@@ -158,7 +158,7 @@ class SolrClient(HttpClient):
         }
         command = 'solr/%s/update?commit=%s' % (collection, ('true' if commit else 'false'))
         r = self.post(command, json_payload=documents, header=headers)
-        raise_for_status(operation_type=op.INDEXING, operation=op.ADD_DOCUMENTS, resp=r)
+        raise_for_status(operation_type=op.INDEXING, operation=op.ADD_DOCUMENTS, resp=r, documents=documents)
 
     # curl 'http://localhost:8983/solr/techproducts/update?commit=true'
     #  --data-binary @example/exampledocs/books.json -H 'Content-type:application/json'

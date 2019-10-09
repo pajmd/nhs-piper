@@ -57,4 +57,4 @@ ENV MONGO_HOST='mongo_db'
 RUN pip install --trusted-host pypi.python.org -r requirements.txt
 
 ENTRYPOINT ["./start_piper.sh"]
-CMD ["mongo"]
+CMD ["mongo", "mongo_db"]

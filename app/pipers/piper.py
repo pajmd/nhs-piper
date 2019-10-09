@@ -35,7 +35,7 @@ class Piper(object):
                     auto_offset_reset='earliest',
                     enable_auto_commit=False,
                     max_poll_records=self.max_records,
-                    max_poll_interval_ms=5000,  # ms
+                    max_poll_interval_ms=120000,  # ms
                     # consumer_timeout_ms=10,  # ms
                     group_id=group_id,
                     value_deserializer=lambda x: loads(x.decode('utf-8')))
@@ -67,12 +67,13 @@ class Piper(object):
                         logger.debug(consumer_records)
                         for record in consumer_records:
                             logger.debug("Record offset: %d" % record.offset)
-                            nhs_records.append(record.value['doc'])
+                            self.populate_nhs_records(nhs_records, record)
+                            # nhs_records.append(record.value['doc'])
                     try:
                         self.process_records(nhs_records)
                         self.consumer.commit()
                     except Exception as ex:  # create exception DB and solr specific
-                        logger.exception('Error while indexing data: %s' % ex)
+                        logger.exception('Error while storing or indexing data: %s' % ex)
                 else:
                     logger.debug("No record received")
                     time.sleep(2)
@@ -87,3 +88,13 @@ class Piper(object):
     @abstractmethod
     def process_records(self, records):
         pass
+
+    def populate_nhs_records(self, nhs_records, record):
+        bulk = record.value['doc'].get('bulk')
+        filename = record.value['doc'].get('filename')
+        if filename:
+            logger.debug("Received chunks for %s" % filename)
+        if bulk is None:
+            nhs_records.append(record.value['doc'])
+        else:
+            nhs_records.extend(bulk)

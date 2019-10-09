@@ -50,7 +50,7 @@ def get_error(operation_type, operation, response):
         return "Error %s - %s: %s" % (operation_type.name, operation.name, response)
 
 
-def raise_for_status(operation_type, operation, resp):
+def raise_for_status(operation_type, operation, resp, documents):
     """
     reaises an exception at the first erro found
     :param operation_type:
@@ -60,12 +60,12 @@ def raise_for_status(operation_type, operation, resp):
     """
     if isinstance(resp, list):
         for r in resp:
-            inspect(operation_type, operation, r)
+            inspect(operation_type, operation, r, documents)
     else:
-        inspect(operation_type, operation, resp)
+        inspect(operation_type, operation, resp, documents)
 
 
-def inspect(operation_type, operation, resp):
+def inspect(operation_type, operation, resp, documents):
     print("%s - %s: %s" % (operation_type.name, operation.name, resp))
     if resp.status_code != 200:
         response = resp.json()
@@ -83,4 +83,5 @@ def inspect(operation_type, operation, resp):
         elif operation_type == op.INDEXING:
             if response["responseHeader"]["status"] != 0:
                 if operation == op.ADD_FILE or operation == op.ADD_DOCUMENTS:
-                    raise IndexingFileException(get_error(operation_type, operation, response))
+                    raise IndexingFileException("%s docs: %s" % (get_error(operation_type, operation, response),
+                                                                 documents[0] if documents else 'No documents'))
