@@ -10,6 +10,11 @@ logger = logging.getLogger(__name__)
 
 class MongoPiper(Piper):
 
+    # TODO
+    # def __init__(self):
+    #     # initialize / connect to the DB
+    #     pass
+
     def process_records(self, nhs_records):
         logger.debug("processing %d records" % len(nhs_records))
         logger.debug("DB details: %s - %s - %s" % (MONGO_URI, MONGO_DATABASE, COLLECTION_NAME))

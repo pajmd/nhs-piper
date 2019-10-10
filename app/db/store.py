@@ -37,7 +37,7 @@ class DbClient(object):
         self.db = self.client[self.mongo_db]
         if self.validate_schema:
             self.apply_validation()
-        # self.create_index("digest")
+        self.create_index("digest")
 
     def apply_validation(self):
         if self.collection_name in self.db.collection_names():
