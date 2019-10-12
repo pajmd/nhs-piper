@@ -8,6 +8,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class SolrPiper(Piper):
     def process_records(self, nhs_records):
 

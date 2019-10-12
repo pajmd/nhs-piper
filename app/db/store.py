@@ -1,6 +1,6 @@
 import pymongo
 import logging
-
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +33,15 @@ class DbClient(object):
 
         logger.debug("Logging to DB: %s " % self.mongo_uri)
         self.client = pymongo.MongoClient(self.mongo_uri)
+        for attempt in range(1, 10):
+            try:
+                # The ismaster command is cheap and does not require auth.
+                self.client.admin.command('ismaster')
+                break
+            except pymongo.ConnectionFailure:
+                logger.debug("Server not available")
+                time.sleep(5 * attempt)
+
         logger.debug("Connected to DB")
         self.db = self.client[self.mongo_db]
         if self.validate_schema:
@@ -56,7 +65,8 @@ class DbClient(object):
         logger.debug("Potentially inserting %d documents" % len(documents))
         operations = self.build_bulk_upsert(documents)
         logger.debug("Writting %d db operations" % len(operations))
-        rc = self.db[self.collection_name].bulk_write(operations)
+        if operations:
+            rc = self.db[self.collection_name].bulk_write(operations)
 
     def build_bulk_upsert(self, documents):
         # UpdateOne({"field1": 11}, {"$set": {"field2": 12, "field3": 13 }}, upsert=True),

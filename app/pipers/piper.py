@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 MAX_RECORDS = 10
 MAX_POLL_TIME = 1000  # 1 sec
 
+
 class Piper(object):
     __metaclass__ = ABCMeta
 
@@ -23,6 +24,8 @@ class Piper(object):
         threading.Thread.__init__(self)
         self.stop_event = threading.Event()
 
+        self.num_poll_attempts = 1
+        self.poll_waiting_time = 5  # 5 sec
         logger.info("Kafka Brokers: %s" % KAFKA_BROKERS)
         self.max_poll_time = max_poll_time
         self.max_records = max_records
@@ -72,8 +75,13 @@ class Piper(object):
                     try:
                         self.process_records(nhs_records)
                         self.consumer.commit()
+                        self.reset_throttle_polling()
                     except Exception as ex:  # create exception DB and solr specific
                         logger.exception('Error while storing or indexing data: %s' % ex)
+                        # not sure it will help much bc if something is wrong with the record
+                        # eventually the record will be picked by another piper instance.
+                        # At the end we will exhaust all instances and stall
+                        self.throttle_polling()
                 else:
                     logger.debug("No record received")
                     time.sleep(2)
@@ -89,7 +97,8 @@ class Piper(object):
     def process_records(self, records):
         pass
 
-    def populate_nhs_records(self, nhs_records, record):
+    @staticmethod
+    def populate_nhs_records(nhs_records, record):
         bulk = record.value['doc'].get('bulk')
         filename = record.value['doc'].get('filename')
         if filename:
@@ -98,3 +107,12 @@ class Piper(object):
             nhs_records.append(record.value['doc'])
         else:
             nhs_records.extend(bulk)
+
+    def throttle_polling(self):
+        self.poll_waiting_time = self.poll_waiting_time * self.num_poll_attempts
+        time.sleep(self.poll_waiting_time)
+        self.num_poll_attempts += 1
+
+    def reset_throttle_polling(self):
+        self.num_poll_attempts = 1
+
