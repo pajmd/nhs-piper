@@ -56,5 +56,11 @@ ENV MONGO_HOST='mongo_db'
 # Install any needed packages specified in requirements.txt
 RUN pip install --trusted-host pypi.python.org -r requirements.txt
 
+# By default, without overriding any environment variable, when starting the container it will assume
+# it is running a mongo piper on one single host (mongo_db mongodb hostname in docker_compose.yaml), default
+# port 27017 and defalt replica set nhsReplicaName.
+# To running in a customized way, all the environment variables need to be defined. Ex:
+# ENV MONGO_HOST='host1:port1,host2:port2'
+# ENV
 ENTRYPOINT ["./start_piper.sh"]
 CMD ["mongo", "mongo_db"]

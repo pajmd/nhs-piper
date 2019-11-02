@@ -3,7 +3,7 @@
 #
 # make
 #
-NAME   := pjmd-ubuntu:5001/nhs_piper
+NAME   := pjmd-ubuntu.com/nhs_piper
 TAG    := $$(git describe --tag)
 IMG    := ${NAME}:${TAG}
 LATEST := ${NAME}:latest
@@ -13,7 +13,7 @@ build:
 	@docker tag ${IMG} ${LATEST}
 
 push:
-	@docker push pjmd-ubuntu:5001/${NAME}
+	@docker push ${IMG}
 
 # login:
 #   @docker log -u ${DOCKER_USER} -p ${DOCKER_PASS}

@@ -9,14 +9,30 @@ SOLR_GROUP_ID = 'solr_feeder'
 KAFKA_HOST = os.environ.get('KAFKA_HOST', 'localhost')
 KAFKA_BROKERS = ['%s:9092' % KAFKA_HOST]
 
-# MONGO
-MONGO_HOST = os.environ.get('MONGO_HOST','localhost')
-MONGO_PORT = os.environ.get('MONGO_PORT',27017)
 
-MONGO_URI = os.environ.get('MONGO_URI', 'mongodb://%s:%d/' % (MONGO_HOST, MONGO_PORT))
+def get_mongo_uri():
+    mongo_host = os.environ.get('MONGO_HOST', 'localhost')
+    mongo_port = os.environ.get('MONGO_PORT', 27017)
+    mongo_replicaset = os.environ.get('MONGO_REPLICASET', 'nhsReplicaName')
+
+    if mongo_host.find(',') > -1:
+        # mongo_host = host1:port1,host2:port2...
+        uri = 'mongodb://%s/replicaSet=%s' % (mongo_host, mongo_replicaset)
+    elif mongo_host.find(':') > -1:
+        # mongo_host = host1:port1
+        uri = 'mongodb://%s/' % (mongo_host)
+    else:
+        # mongo_host = host1
+        uri = 'mongodb://%s:%d/' % (mongo_host, mongo_port)
+
+    return uri
+
+
+# MONGO
+MONGO_URI = get_mongo_uri()
 MONGO_DATABASE = os.environ.get('MONGO_DATABASE', 'nhsdb')
 COLLECTION_NAME = os.environ.get('COLLECTION_NAME', 'nhsCollection')
-VALIDATE_SCHEMA =  os.environ.get('VALIDATE_SCHEMA', False)
+VALIDATE_SCHEMA = os.environ.get('VALIDATE_SCHEMA', False)
 
 VALIDATION_SCHEMA =  {
     'validator': {
