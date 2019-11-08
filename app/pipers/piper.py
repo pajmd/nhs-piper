@@ -81,7 +81,9 @@ class Piper(object):
                         # not sure it will help much bc if something is wrong with the record
                         # eventually the record will be picked by another piper instance.
                         # At the end we will exhaust all instances and stall
-                        self.throttle_polling()
+                        # Therefore I decided to commit anyway
+                        self.consumer.commit()
+                        # self.throttle_polling()
                 else:
                     logger.debug("No record received")
                     time.sleep(2)
@@ -110,6 +112,7 @@ class Piper(object):
 
     def throttle_polling(self):
         self.poll_waiting_time = self.poll_waiting_time * self.num_poll_attempts
+        print("Throttling, waiting: %d seconds" % self.poll_waiting_time)
         time.sleep(self.poll_waiting_time)
         self.num_poll_attempts += 1
 
