@@ -12,6 +12,7 @@ PUBLIC_IMG := ${PUBLIC_REPO}/${APP}:${TAG}
 LATEST := ${NAME}:latest
 
 build:
+	@git fetch origin
 	@docker build -t ${IMG} --build-arg GIT_VERSION=${TAG} .
 	@docker tag ${IMG} ${LATEST}
 	@docker tag ${IMG} ${PUBLIC_IMG}
