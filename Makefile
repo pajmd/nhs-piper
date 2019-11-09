@@ -11,13 +11,15 @@ IMG    := ${NAME}:${TAG}
 PUBLIC_IMG := ${PUBLIC_REPO}/${APP}:${TAG}
 LATEST := ${NAME}:latest
 
+all: push
+
 build:
 	@git fetch origin
 	@docker build -t ${IMG} --build-arg GIT_VERSION=${TAG} .
 	@docker tag ${IMG} ${LATEST}
 	@docker tag ${IMG} ${PUBLIC_IMG}
 
-push:
+push: build
 	@docker push ${IMG}
 
 # login:
