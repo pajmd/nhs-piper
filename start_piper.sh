@@ -11,6 +11,9 @@
 #   hostname1:port1,hostsname2:port2:hostname3:port3
 # $3 is optional and defaults to nhsReplicaName. It is the mongo replica set name for a mongo piper
 
+SLEEP_TIME=${DELAY:-5}
+ATTEMPTS_LEFT=${ATTEMPT_NUM:-12}
+
 if [ -z $1 ]; then
     echo "Missing piper type and piper host"
 	exit 1
@@ -34,7 +37,7 @@ else
 fi
 
 check_mongod_up() {
-	attempts_left=5
+	attempts_left=$ATTEMPTS_LEFT
 	mongo_hostname=$1
 	mongo_replicaset=$2
 
@@ -57,13 +60,13 @@ check_mongod_up() {
 		echo "mongo_session= $mongo_session"
 		if [ -z "$mongo_session" ]; then
 			echo "Waiting for Mongo another " $attempts_left " times"
-			sleep 5
+			sleep $SLEEP_TIME
 		else
 			replicaset=`/usr/bin/mongo "mongodb://$mongo_uri" --eval "rs.status()" | grep   $mongo_replicaset`
 			echo "The replica set: $replicaset"
 			if [ -z "$replicaset" ]; then
 				echo "Waiting for Mongo another " $attempts_left " times"
-				sleep 5
+				sleep $SLEEP_TIME
 			else
 				break
 			fi
@@ -74,7 +77,7 @@ check_mongod_up() {
 
 
 check_solr_up() {
-	attempts_left=12
+	attempts_left=$ATTEMPTS_LEFT
 	solr_url=$1
 	while (( attempts_left > 0 )); do
 
@@ -91,7 +94,7 @@ check_solr_up() {
 		echo "wget result: $res"
 		if [ -z "$res" ] ; then
 			echo "Waiting for $solr_url and nhsCollection another " $attempts_left " times"
-			sleep 5
+			sleep $SLEEP_TIME
 		else
 		    break
 		fi
@@ -109,5 +112,10 @@ else
     check_mongod_up $DB_HOST $DB_REPLICASET
 fi
 
-cd app
-python $1_sender.py
+if [[ $? -eq 0 ]]; then
+  echo "Starting $1_sender"
+  cd app
+  python $1_sender.py
+else 
+  echo "Solr not ready, could NOT start $1_sender"
+fi
