@@ -7,7 +7,8 @@ TOPIC = 'scrapypipe'
 MONGO_GROUP_ID = 'mongo_feeder'
 SOLR_GROUP_ID = 'solr_feeder'
 KAFKA_HOST = os.environ.get('KAFKA_HOST', 'localhost')
-KAFKA_BROKERS = ['%s:9092' % KAFKA_HOST]
+KAFKA_PORT = os.environ.get('KAFKA_PORT', '9092')
+KAFKA_BROKERS = ['%s:%s' % KAFKA_HOST, KAFKA_PORT]
 
 
 def get_mongo_uri():

@@ -40,6 +40,9 @@
 
 FROM bionic-mongo-python
 
+RUN sudo apt-get update -y
+RUN sudo apt-get install --no-install-recommends -y netcat
+
 # Set the working directory to /app
 WORKDIR /app
 
@@ -49,9 +52,21 @@ COPY . /app
 RUN echo $(ls -1R .)
 # RUN apt-get install -y vim
 
-ENV SOLR_HOST='solr1'
+# Mongo piper
+ENV MONGO_HOST='mongo_db:27017'
+ENV MONGO_REPLICASET='nhsReplicaName'
+#
+# or
+#
+# Solr piper
+# ENV SOLR_HOST='solr1'
+# ENV SOLR_PORT='8983'
+
 ENV KAFKA_HOST='kafka'
-ENV MONGO_HOST='mongo_db'
+ENV KAFKA_PORT='9092'
+
+ENV ZOOKEEPER_HOST='zoo1'
+ENV ZOOKEEPER_PORT='2181'
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --trusted-host pypi.python.org -r requirements.txt
@@ -59,8 +74,8 @@ RUN pip install --trusted-host pypi.python.org -r requirements.txt
 # By default, without overriding any environment variable, when starting the container it will assume
 # it is running a mongo piper on one single host (mongo_db mongodb hostname in docker_compose.yaml), default
 # port 27017 and defalt replica set nhsReplicaName.
-# To running in a customized way, all the environment variables need to be defined. Ex:
+# Override all the environment variables to change default behaviour. Ex:
 # ENV MONGO_HOST='host1:port1,host2:port2'
 # ENV
 ENTRYPOINT ["./start_piper.sh"]
-CMD ["mongo", "mongo_db"]
+CMD ["mongo"]
