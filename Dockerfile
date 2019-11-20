@@ -40,8 +40,8 @@
 
 FROM bionic-mongo-python
 
-RUN sudo apt-get update -y
-RUN sudo apt-get install --no-install-recommends -y netcat
+RUN apt-get update -y
+RUN apt-get install --no-install-recommends -y netcat
 
 # Set the working directory to /app
 WORKDIR /app
