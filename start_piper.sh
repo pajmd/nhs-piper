@@ -21,18 +21,20 @@ ATTEMPTS_LEFT=${ATTEMPT_NUM:-12}
 # check parameters and env variables are set properly
 if [ -z "$1" ]; then
   echo "Missing piper type"
-	return 1
+	exit 1
 elif [[ -z $ZOOKEEPER_HOST ]]; then
   echo "Missing zookeeper host"
+  exit 1
 elif [[ -z $ZOOKEEPER_PORT ]]; then
   echo "Missing zookeeper port"
+  exit 1
 elif [[ -z $KAFKA_HOST ]]; then
   echo "Missing kafka host"
-  return 1
+  exit 1
 elif [[ $1 == "solr" ]]; then
   if [[ -z $SOLR_HOST ]]; then
     echo "Missing solr host"
-    return 1
+    exit 1
   else
     SOLR_PORT=${SOLR_PORT:-8983}
     SOLR_URL="http://$SOLR_HOST:$SOLR_PORT"
@@ -40,14 +42,14 @@ elif [[ $1 == "solr" ]]; then
 elif [[ $1 == "mongo" ]]; then
   if [[ -z $MONGO_HOST ]]; then
     echo "Missing mongo host"
-    return 1
+    exit 1
   elif [[ -z $MONGO_REPLICASET ]]; then
       echo "Missing mongo replicaset"
-      return 1
+      exit 1
   fi
 else
   echo "Unknown piper type"
-  return 1
+  exit 1
 fi
 
 
@@ -138,19 +140,23 @@ check_kafka_up() {
 
 if check_kafka_up; then
   if [[ $1 == 'solr' ]]; then
-      rc=check_solr_up
+      check_solr_up
   else
     # $DB_HOST is either a simple hostname like localhost (no port as it can olny be 27017)
     # or hostname1:port1,hostsname2:port2:hostname3:port3
     #
-      rc=check_mongod_up
+      check_mongod_up
   fi
+else
+  echo "Kafka not ready cannot start $1 piper"
+  exit 1
 fi
 
-if $rc ; then
+if [[ $? -eq 0 ]]; then
   echo "Starting $1_sender"
   cd app || exit 1
   python $1_sender.py
 else 
-  echo "Solr not ready, could NOT start $1_sender"
+  echo "$1 not ready, could NOT start $1_sender"
+  exit 1
 fi
