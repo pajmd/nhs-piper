@@ -35,7 +35,7 @@ MONGO_DATABASE = os.environ.get('MONGO_DATABASE', 'nhsdb')
 COLLECTION_NAME = os.environ.get('COLLECTION_NAME', 'nhsCollection')
 VALIDATE_SCHEMA = os.environ.get('VALIDATE_SCHEMA', False)
 
-VALIDATION_SCHEMA =  {
+VALIDATION_SCHEMA = {
     'validator': {
         '$jsonSchema': [
             {'bsonType': "object"},
@@ -59,3 +59,4 @@ VALIDATION_SCHEMA =  {
 # SOLR
 SOLR_HOST = os.environ.get('SOLR_HOST', 'localhost')
 SOLR_PORT = os.environ.get('SOLR_PORT', 8983)
+SOLR_DEDUPE = True if os.environ.get('SOLR_DEDUPE', 'True') == 'True' else False

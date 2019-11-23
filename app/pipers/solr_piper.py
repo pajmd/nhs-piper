@@ -1,5 +1,5 @@
 from pipers.piper import Piper
-from settings import COLLECTION_NAME
+from settings import COLLECTION_NAME, SOLR_DEDUPE
 from search_engine import solr
 import uuid
 import time
@@ -15,7 +15,8 @@ class SolrPiper(Piper):
         def make_solr_record(nhs_record):
             nhs_record['ns'] = COLLECTION_NAME
             nhs_record['_ts'] = time.time()
-            nhs_record['id'] = uuid.uuid4().hex
+            if not SOLR_DEDUPE:
+                nhs_record['id'] = uuid.uuid4().hex
             nhs_record.pop('url')
             nhs_record.pop('filename')
             nhs_record.pop('digest')
