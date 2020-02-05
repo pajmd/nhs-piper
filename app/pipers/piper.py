@@ -5,6 +5,7 @@ from settings import (
     TOPIC, KAFKA_BROKERS
 )
 from pipers.errors import PiperNoBrokerAvailable
+from utils.prometheus_instrumentation import RECORD_COMMITTED, RECORD_RECEIVED, NUM_REC_PER_MSG, NUM_FAILURE_PROC_MGS
 import threading
 import time
 import logging
@@ -73,9 +74,13 @@ class Piper(object):
                             self.populate_nhs_records(nhs_records, record)
                             # nhs_records.append(record.value['doc'])
                     try:
-                        self.process_records(nhs_records)
-                        self.consumer.commit()
-                        self.reset_throttle_polling()
+                        with NUM_FAILURE_PROC_MGS.count_exceptions():
+                            RECORD_RECEIVED.inc(len(nhs_records))
+                            NUM_REC_PER_MSG.set(len(nhs_records))
+                            self.process_records(nhs_records)
+                            self.consumer.commit()
+                            RECORD_COMMITTED.inc(len(nhs_records))
+                            self.reset_throttle_polling()
                     except Exception as ex:  # create exception DB and solr specific
                         logger.exception('Error while storing or indexing data: %s' % ex)
                         # not sure it will help much bc if something is wrong with the record

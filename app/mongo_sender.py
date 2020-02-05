@@ -1,6 +1,6 @@
 from pipers.mongo_piper import MongoPiper
 from settings import MONGO_GROUP_ID
-from utils import log
+from utils import log, prometheus_instrumentation
 import logging
 
 
@@ -18,6 +18,7 @@ def main():
     log.set_logger(logger)
 
     logger.debug("Starting mongo sender")
+    prometheus_instrumentation.start_http_server(9902)
     mongo_piper = MongoPiper(MONGO_GROUP_ID)
     mongo_piper.consume_pipe()
 

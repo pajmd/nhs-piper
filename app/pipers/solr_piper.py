@@ -1,6 +1,7 @@
 from pipers.piper import Piper
 from settings import COLLECTION_NAME, SOLR_DEDUPE
 from search_engine import solr
+from utils.prometheus_instrumentation import REQUEST_TIME
 import uuid
 import time
 import logging
@@ -10,6 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class SolrPiper(Piper):
+    @REQUEST_TIME.time()
     def process_records(self, nhs_records):
 
         def make_solr_record(nhs_record):

@@ -3,6 +3,7 @@ from settings import (
     MONGO_URI, MONGO_DATABASE, COLLECTION_NAME
 )
 from db.store import DbClient
+from utils.prometheus_instrumentation import REQUEST_TIME
 import logging
 
 
@@ -20,6 +21,7 @@ class MongoPiper(Piper):
             logger.exception("Something went wong with the DB")
             raise
 
+    @REQUEST_TIME.time()
     def process_records(self, nhs_records):
         logger.debug("processing %d records" % len(nhs_records))
         logger.debug("DB details: %s - %s - %s" % (MONGO_URI, MONGO_DATABASE, COLLECTION_NAME))
